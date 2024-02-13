@@ -504,7 +504,7 @@ jobs:
       with:
         key: ccache-{{ arch }}-{{ .Branch }}-{{ .BuildNum }}
         path:
-        - "/home/circleci/.ccache"
+          "/home/circleci/.ccache"
         restore-keys: |-
           ccache-{{ arch }}-{{ .Branch }}-{{ .BuildNum }}
           ccache-{{ arch }}-{{ .Branch }}-
