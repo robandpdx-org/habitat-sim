@@ -102,7 +102,7 @@ runs:
     run: |-
       # Check that pytorch is installed with CUDA.
       export PATH=$HOME/miniconda/bin:$PATH
-      . activate habitat;
+      . $CONDA/bin/activate habitat;
       python -c 'import torch; torch.cuda.set_device(0)'
     shell: bash
   - name: Install emscripten
@@ -110,7 +110,7 @@ runs:
       if [ ! -f ~/emscripten_installed ]
       then
         export PATH=$HOME/miniconda/bin:$PATH
-        . activate habitat;
+        . $CONDA/bin/activate habitat;
         git clone -q https://github.com/emscripten-core/emsdk.git ~/emsdk
         cd ~/emsdk
         ./emsdk install 1.38.48
@@ -144,7 +144,7 @@ runs:
   - name: CCache initialization
     run: |-
       export PATH=$HOME/miniconda/bin:$PATH
-      . activate habitat;
+      . $CONDA/bin/activate habitat;
       ccache --show-stats
       ccache --zero-stats
       ccache --max-size=10.0G
