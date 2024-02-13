@@ -10,10 +10,12 @@ env:
 jobs:
   python_lint:
     runs-on: ubuntu-latest
-    container:
-      image: python:3.9.16
     steps:
-    - uses: actions/checkout@v4.1.0
+    - uses: actions/checkout@v4.1.1
+    - name: Setup python
+      uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9.16'
     - name: setup
       run: |-
         pip install -U pip
@@ -51,10 +53,11 @@ jobs:
       run: mypy
   js_lint:
     runs-on: ubuntu-latest
-    container:
-      image: node:12.20
     steps:
-    - uses: actions/checkout@v4.1.0
+    - uses: actions/checkout@v4.1.1
+    - uses: actions/setup-node@v4.0.2
+      with:
+        node-version: '12.20'
     - name: setup
       run: npm install
     - name: run eslint
@@ -64,7 +67,7 @@ jobs:
     env:
       FPS_THRESHOLD: 900
     steps:
-    - uses: actions/checkout@v4.1.0
+    - uses: actions/checkout@v4.1.1
       with:
         path: "./habitat-sim"
     - name: CPU info
@@ -166,22 +169,16 @@ jobs:
     - uses: maxim-lobanov/setup-xcode@v1.6.0
       with:
         xcode-version: 14.2.0
-    - uses: actions/checkout@v4.1.0
+    - uses: actions/checkout@v4.1.1
       with:
         path: "./habitat-sim"
-    - name: Conda Install OSX
-      run: |-
-        curl -o ~/miniconda.sh -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-        chmod +x ~/miniconda.sh
-        ~/miniconda.sh -b -p $HOME/miniconda
-        rm ~/miniconda.sh
-        export PATH=$HOME/miniconda/bin:$PATH
-        conda init "$(basename "${SHELL}")"
+    - name: Setup Miniconda
+      uses: conda-incubator/setup-miniconda@v3.0.1
+      with:
+        auto-activate-base: true
+        activate-environment: ""
     - name: Conda OSX build
       run: |-
-        export PATH=$HOME/miniconda/bin:$PATH
-        source ~/.bash_profile
-        conda activate
         conda install -y anaconda-client ccache cmake git ninja conda-build pip
         echo $(which -a python)
         pip install gitpython
@@ -201,7 +198,7 @@ jobs:
     env:
       FPS_THRESHOLD: 900
     steps:
-    - uses: actions/checkout@v4.1.0
+    - uses: actions/checkout@v4.1.1
     - name: Install dependencies
       run: |-
         sudo apt-get update || true
@@ -224,11 +221,12 @@ jobs:
             libhdf5-dev \
             libomp-dev \
             unzip || true
+    - name: Setup python
+      uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9.16
     - name: pip install
       run: |-
-        cd /opt/circleci/.pyenv/plugins/python-build/../.. && git fetch --tags && git checkout v2.3.15 && cd -
-        pyenv install 3.9.16
-        pyenv global 3.9.16
         python3 -m pip install -U pip
         python3 -m pip install . -v
         cd ../ && python3 -c "import habitat_sim"
@@ -237,7 +235,7 @@ jobs:
     env:
       FPS_THRESHOLD: 900
     steps:
-    - uses: actions/checkout@v4.1.0
+    - uses: actions/checkout@v4.1.1
       with:
         path: "./habitat-sim"
     - name: CPU info
@@ -396,10 +394,12 @@ jobs:
       run:
         working-directory: "~/repo/"
     runs-on: ubuntu-latest
-    container:
-      image: python:3.9.16
     steps:
-    - uses: actions/checkout@v4.1.0
+    - uses: actions/checkout@v4.1.1
+    - name: Setup python
+      uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9.16'
     - name: Combine precommit config and python versions for caching
       run: |-
         echo $(date +%F) > ./date
@@ -427,7 +427,7 @@ jobs:
       NIGHTLY_FLAG: ''
       CI_TEST: true
     steps:
-    - uses: actions/checkout@v4.1.0
+    - uses: actions/checkout@v4.1.1
       with:
         path: "./habitat-sim"
     - name: Build conda Linux packages
@@ -462,21 +462,9 @@ jobs:
   clang_tidy:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v4.1.0
+    - uses: actions/checkout@v4.1.1
       with:
         path: "./habitat-sim"
-    - name: Install cmake
-      run: |-
-        echo $(date +%F) > ./date
-        echo $(git ls-remote https://github.com/facebookresearch/habitat-lab.git HEAD | awk '{ print $1}') > ./hablab_sha
-        cat ./hablab_sha
-        wget https://cmake.org/files/v3.12/cmake-3.12.4-Linux-x86_64.sh
-        wget https://cmake.org/files/v3.20/cmake-3.20.1-linux-x86_64.sh
-        sudo mkdir /opt/cmake312
-        sudo mkdir /opt/cmake320
-        sudo sh ./cmake-3.12.4-Linux-x86_64.sh --prefix=/opt/cmake312 --skip-license
-        sudo sh ./cmake-3.20.1-linux-x86_64.sh --prefix=/opt/cmake320 --skip-license
-        sudo ln -s /opt/cmake312/bin/cmake /usr/local/bin/cmake
     - name: Install dependencies
       run: |-
         sudo apt-get update || true
@@ -499,23 +487,18 @@ jobs:
             libhdf5-dev \
             libomp-dev \
             unzip || true
+    - name: Setup miniconda
+      uses: conda-incubator/setup-miniconda@v3.0.1
+      with:
+        auto-activate-base: true
+        activate-environment: ""
     - name: Install conda and dependencies
       run: |-
-        if [ ! -d ~/miniconda ]
-        then
-          curl -o ~/miniconda.sh -O  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-          chmod +x ~/miniconda.sh
-          bash ~/miniconda.sh -b -p $HOME/miniconda
-          rm ~/miniconda.sh
-          export PATH=$HOME/miniconda/bin:$PATH
-          conda create -y -n habitat python=3.9
-          . activate habitat
-          # For whatever reason we have to install pytorch first. If it isn't
-          # it installs the 1.4 cpuonly version. Which is no good.
-          conda install -y pytorch==1.12.1=py3.9_cuda11.3_cudnn8.3.2_0 torchvision==0.13.1=py39_cu113 cudatoolkit=11.3 -c pytorch -c nvidia
-          conda install -y -c conda-forge ninja numpy pytest pytest-cov ccache hypothesis pytest-mock
-          pip install pytest-sugar pytest-xdist pytest-benchmark opencv-python cython mock
-        fi
+        # For whatever reason we have to install pytorch first. If it isn't
+        # it installs the 1.4 cpuonly version. Which is no good.
+        conda install -y pytorch==1.12.1=py3.9_cuda11.3_cudnn8.3.2_0 torchvision==0.13.1=py39_cu113 cudatoolkit=11.3 -c pytorch -c nvidia
+        conda install -y -c conda-forge ninja numpy pytest pytest-cov ccache hypothesis pytest-mock
+        pip install pytest-sugar pytest-xdist pytest-benchmark opencv-python cython mock
     - name: restore_cache
       uses: actions/cache@v3.3.2
       with:

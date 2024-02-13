@@ -97,23 +97,18 @@ runs:
       key: conda-{{ checksum "habitat-sim/.circleci/config.yml" }}-{{ checksum "./date" }}
       path: UPDATE_ME
       restore-keys: conda-{{ checksum "habitat-sim/.circleci/config.yml" }}-{{ checksum "./date" }}
+  - name: Setup miniconda
+    uses: conda-incubator/setup-miniconda@v3.0.1
+    with:
+      auto-activate-base: true
+      activate-environment: ""
   - name: Install conda and dependencies
     run: |-
-      if [ ! -d ~/miniconda ]
-      then
-        curl -o ~/miniconda.sh -O  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-        chmod +x ~/miniconda.sh
-        bash ~/miniconda.sh -b -p $HOME/miniconda
-        rm ~/miniconda.sh
-        export PATH=$HOME/miniconda/bin:$PATH
-        conda create -y -n habitat python=3.9
-        . activate habitat
-        # For whatever reason we have to install pytorch first. If it isn't
-        # it installs the 1.4 cpuonly version. Which is no good.
-        conda install -y pytorch==1.12.1=py3.9_cuda11.3_cudnn8.3.2_0 torchvision==0.13.1=py39_cu113 cudatoolkit=11.3 -c pytorch -c nvidia
-        conda install -y -c conda-forge ninja numpy pytest pytest-cov ccache hypothesis pytest-mock
-        pip install pytest-sugar pytest-xdist pytest-benchmark opencv-python cython mock
-      fi
+      # For whatever reason we have to install pytorch first. If it isn't
+      # it installs the 1.4 cpuonly version. Which is no good.
+      conda install -y pytorch==1.12.1=py3.9_cuda11.3_cudnn8.3.2_0 torchvision==0.13.1=py39_cu113 cudatoolkit=11.3 -c pytorch -c nvidia
+      conda install -y -c conda-forge ninja numpy pytest pytest-cov ccache hypothesis pytest-mock
+      pip install pytest-sugar pytest-xdist pytest-benchmark opencv-python cython mock
     shell: bash
   - name: Validate Pytorch Installation
     run: |-
