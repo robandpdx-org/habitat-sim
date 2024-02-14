@@ -496,6 +496,7 @@ jobs:
       run: |-
         # For whatever reason we have to install pytorch first. If it isn't
         # it installs the 1.4 cpuonly version. Which is no good.
+        conda install -y python=3.9.16
         conda install -y pytorch==1.12.1=py3.9_cuda11.3_cudnn8.3.2_0 torchvision==0.13.1=py39_cu113 cudatoolkit=11.3 -c pytorch -c nvidia
         conda install -y -c conda-forge ninja numpy pytest pytest-cov ccache hypothesis pytest-mock
         pip install pytest-sugar pytest-xdist pytest-benchmark opencv-python cython mock
