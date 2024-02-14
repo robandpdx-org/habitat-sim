@@ -86,6 +86,8 @@ runs:
       restore-keys: conda-{{ checksum "habitat-sim/.circleci/config.yml" }}-{{ checksum "./date" }}
   - name: Setup miniconda
     uses: conda-incubator/setup-miniconda@v3.0.1
+    with:
+      auto-activate-base: false
   - name: Install conda and dependencies
     run: |-
       conda create -y -n habitat python=3.9
