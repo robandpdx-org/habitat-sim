@@ -87,7 +87,7 @@ runs:
   - name: Setup miniconda
     uses: conda-incubator/setup-miniconda@v3.0.1
     with:
-      auto-activate-base: false
+      miniconda-version: "latest"
   - name: Install conda and dependencies
     run: |-
       conda create -y -n habitat python=3.9
