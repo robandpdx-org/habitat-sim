@@ -91,6 +91,8 @@ runs:
       activate-environment: ""
   - name: Install conda and dependencies
     run: |-
+      conda create -y -n habitat python=3.9
+      . $CONDA/bin/activate habitat
       # For whatever reason we have to install pytorch first. If it isn't
       # it installs the 1.4 cpuonly version. Which is no good.
       conda install -y python=3.9.16
