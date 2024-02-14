@@ -120,14 +120,13 @@ runs:
         touch ~/emscripten_installed
       fi
     shell: bash
+  - name: Setup node
+    uses: actions/setu  p-node@v2.4.0
+    with:
+      node-version: "11.9.0"
   - name: Install JavaScript dependencies
     run: |-
       if [ ! -f ~/npm_deps_installed ]
-      then
-        wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-        . ~/.bashrc
-        nvm install v11.9.0
-        nvm use v11.9.0
         npm install
         touch ~/npm_deps_installed
       fi
