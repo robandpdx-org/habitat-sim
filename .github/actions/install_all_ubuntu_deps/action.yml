@@ -4,6 +4,7 @@ runs:
   steps:
   - name: Install dependencies
     run: |-
+      echo "Install dependencies"
       sudo apt-get update || true
       sudo apt-get install -y --no-install-recommends \
           build-essential \
@@ -27,6 +28,7 @@ runs:
     shell: bash
   - name: Install Headless Chrome dependencies
     run: |-
+      echo "Install Headless Chrome dependencies"
       sudo apt-get update || true
       sudo apt-get install -yq \
             gconf-service \
@@ -67,10 +69,12 @@ runs:
             libnss3 \
             lsb-release \
             xdg-utils \
-            wget
+            wget \
+            cmake
     shell: bash
   - name: Install cuda
     run: |-
+      echo "Install cuda"
       # sudo apt-key adv --fetch-keys "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub"
       # sudo apt-add-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64 /"
       # sudo apt-get update || true
@@ -90,6 +94,7 @@ runs:
       miniconda-version: "latest"
   - name: Install conda and dependencies
     run: |-
+      echo "Install conda and dependencies"
       conda create -y -n habitat python=3.9
       . $CONDA/bin/activate habitat
       # For whatever reason we have to install pytorch first. If it isn't
@@ -101,6 +106,7 @@ runs:
     shell: bash
   - name: Validate Pytorch Installation
     run: |-
+      echo "Validate Pytorch Installation"
       # Check that pytorch is installed with CUDA.
       export PATH=$HOME/miniconda/bin:$PATH
       . $CONDA/bin/activate habitat;
@@ -108,6 +114,7 @@ runs:
     shell: bash
   - name: Install emscripten
     run: |-
+      echo "Install emscripten"
       if [ ! -f ~/emscripten_installed ]
       then
         export PATH=$HOME/miniconda/bin:$PATH
@@ -126,6 +133,7 @@ runs:
       node-version: "11.9.0"
   - name: Install JavaScript dependencies
     run: |-
+      echo "Install JavaScript dependencies"
       if [ ! -f ~/npm_deps_installed ]; then
         npm install
         touch ~/npm_deps_installed
