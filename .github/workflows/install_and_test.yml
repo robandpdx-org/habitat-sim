@@ -88,7 +88,7 @@ jobs:
     - name: Build habitat sim and documentation
       run: |-
         export PATH=$HOME/miniconda/bin:/usr/local/cuda/bin:$PATH
-        . $CONDA/bin/activate habitat;
+        . $CONDA/bin/activate habitat
         cd habitat-sim
         git submodule update --init --recursive --jobs 8
         pip install -r requirements.txt --progress-bar off
@@ -102,6 +102,7 @@ jobs:
             texlive-fonts-extra \
             texlive-fonts-recommended
         # Rebuild with all options enabled
+        echo "Python version: $(python --version)"
         ./build.sh --with-cuda --with-bullet
         cd docs
         git submodule update --init
