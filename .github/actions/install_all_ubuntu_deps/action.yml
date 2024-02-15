@@ -126,7 +126,7 @@ runs:
       node-version: "11.9.0"
   - name: Install JavaScript dependencies
     run: |-
-      if [ ! -f ~/npm_deps_installed ]
+      if [ ! -f ~/npm_deps_installed ]; then
         npm install
         touch ~/npm_deps_installed
       fi
@@ -136,14 +136,13 @@ runs:
     with:
       key: ccache-{{ arch }}-{{ .Branch }}-{{ .BuildNum }}
       path:
-        "/home/circleci/.ccache"
+        ~/.ccache
       restore-keys: |-
         ccache-{{ arch }}-{{ .Branch }}-{{ .BuildNum }}
         ccache-{{ arch }}-{{ .Branch }}-
         ccache-{{ arch }}-main-
   - name: CCache initialization
     run: |-
-      export PATH=$HOME/miniconda/bin:$PATH
       . $CONDA/bin/activate habitat;
       ccache --show-stats
       ccache --zero-stats
