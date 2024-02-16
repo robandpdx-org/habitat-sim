@@ -85,6 +85,8 @@ jobs:
         git lfs install
         python src_python/habitat_sim/utils/datasets_download.py --uids ci_test_assets --replace --data-path data/ --no-prune
         ls -la data/scene_datasets/habitat-test-scenes/
+    - name: cuda-toolkit
+      uses: Jimver/cuda-toolkit@v0.2.14
     - name: Build habitat sim and documentation
       run: |-
         export PATH=$HOME/miniconda/bin:/usr/local/cuda/bin:$PATH
@@ -279,7 +281,7 @@ jobs:
         #sudo rm /usr/local/bin/cmake
         #sudo ln -s /opt/cmake320/bin/cmake /usr/local/bin/cmake
         cd habitat-sim
-        . ~/.bashrc
+        #. ~/.bashrc
         #export PATH=$HOME/miniconda/bin:$PATH
         . $CONDA/bin/activate habitat
         . ~/emsdk/emsdk_env.sh
