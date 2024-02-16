@@ -276,20 +276,20 @@ jobs:
         while [[ ! -f ~/emscripten_installed && ! -f ~/npm_deps_installed ]]; do sleep 2; done
         # switch to cmake 3.20 just for this step. The JS build requires
         # static Bullet libs, and Bullet static libs required CMake 3.13+.
-        sudo rm /usr/local/bin/cmake
-        sudo ln -s /opt/cmake320/bin/cmake /usr/local/bin/cmake
+        #sudo rm /usr/local/bin/cmake
+        #sudo ln -s /opt/cmake320/bin/cmake /usr/local/bin/cmake
         cd habitat-sim
         . ~/.bashrc
-        export PATH=$HOME/miniconda/bin:$PATH
+        #export PATH=$HOME/miniconda/bin:$PATH
         . $CONDA/bin/activate habitat
         . ~/emsdk/emsdk_env.sh
         CMAKE_GENERATOR=Ninja ./build_js.sh --bullet --no-web-apps
         # switch back to cmake 3.12
-        sudo rm /usr/local/bin/cmake
-        sudo ln -s /opt/cmake312/bin/cmake /usr/local/bin/cmake
+        #sudo rm /usr/local/bin/cmake
+        #sudo ln -s /opt/cmake312/bin/cmake /usr/local/bin/cmake
     - name: Display dependency versions
       run: |-
-        export PATH=$HOME/miniconda/bin:/usr/local/cuda/bin:$PATH
+        #export PATH=$HOME/miniconda/bin:/usr/local/cuda/bin:$PATH
         . $CONDA/bin/activate habitat
         export CONDA_ENV_DUMP=conda_env_dump.log
         echo "pip freeze"           | tee -a $CONDA_ENV_DUMP
