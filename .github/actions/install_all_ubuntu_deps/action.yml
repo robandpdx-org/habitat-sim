@@ -75,10 +75,10 @@ runs:
   - name: Install cuda
     run: |-
       echo "Install cuda"
-      # sudo apt-key adv --fetch-keys "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub"
-      # sudo apt-add-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64 /"
-      # sudo apt-get update || true
-      # sudo apt-get --yes --force-yes install cuda-11-1
+      wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+      sudo dpkg -i cuda-keyring_1.1-1_all.deb
+      sudo apt-get update
+      sudo apt-get -y install cuda-toolkit-12-3
       touch ~/cuda_installed
       if command -v nvidia-smi; then nvidia-smi; fi
     shell: bash
