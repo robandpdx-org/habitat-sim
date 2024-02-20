@@ -163,12 +163,13 @@ jobs:
       AIHABITAT_CONDA_CHN: aihabitat
       AIHABITAT_CONDA_CHN_PWD_VAR: AIHABITAT_CONDA_PWD
     steps:
+    - uses: actions/checkout@v4.1.1
+      with:
+        path: ./habitat-sim
+        submodules: recursive
     - uses: maxim-lobanov/setup-xcode@v1.6.0
       with:
         xcode-version: 14.2.0
-    - uses: actions/checkout@v4.1.1
-      with:
-        path: "./habitat-sim"
     - name: Setup Miniconda
       uses: conda-incubator/setup-miniconda@v3.0.1
       with:
@@ -178,18 +179,19 @@ jobs:
       run: |-
         conda install -y anaconda-client ccache cmake git ninja conda-build pip
         echo $(which -a python)
+        echo "Python version: $(python --version)"
         pip install gitpython
         cd habitat-sim
-        git submodule update --init --recursive --jobs 8
+        # git submodule update --init --recursive --jobs 8
         pip install .
         pip uninstall -y habitat-sim
-        rm -rf build
-        (yes || true) | anaconda login --username ${{ env.AIHABITAT_CONDA_CHN }}  --password $${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }} --hostname "aihabitat-conda-ci-builder-macos"
-        ${{ env.CI_TEST }}
-        conda config --set anaconda_upload yes ${{ env.CI_TEST }}
-        cd conda-build
-        export PYTHONIOENCODING="utf-8"
-        python matrix_builder.py ${{ env.CI_TEST }} --ci_test ${{ env.CI_TEST }}  ${{ env.CI_TEST }} --conda_upload ${{ env.nightly }} --nightly ${{ env.nightly }} ${{ env.CI_TEST }}
+        # rm -rf build
+        # (yes || true) | anaconda login --username ${{ env.AIHABITAT_CONDA_CHN }}  --password $${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }} --hostname "aihabitat-conda-ci-builder-macos"
+        # ${{ env.CI_TEST }}
+        # conda config --set anaconda_upload yes ${{ env.CI_TEST }}
+        # cd conda-build
+        # export PYTHONIOENCODING="utf-8"
+        # python matrix_builder.py ${{ env.CI_TEST }} --ci_test ${{ env.CI_TEST }}  ${{ env.CI_TEST }} --conda_upload ${{ env.nightly }} --nightly ${{ env.nightly }} ${{ env.CI_TEST }}
   test_pip_build:
     runs-on: ubuntu-latest
     env:
