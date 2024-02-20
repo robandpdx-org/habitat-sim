@@ -430,7 +430,12 @@ jobs:
         # export PATH=$HOME/miniconda/bin:$PATH
         # . $CONDA/bin/activate habitat;
         cd habitat-sim/conda-build
-        ${{ env.CI_TEST }}
+        if [ $CI_TEST == "true" ]; then
+          CI_TEST_ARG1=" --env $AIHABITAT_CONDA_CHN_PWD_VAR "
+          CI_TEST_ARG2=" && yes | anaconda login --username $AIHABITAT_CONDA_CHN --password \${$AIHABITAT_CONDA_CHN_PWD_VAR} "
+          CI_TEST_ARG3=" --ci_test "
+          CI_TEST_ARG4=" --nightly_flag $NIGHTLY_FLAG "
+        fi
         # Install anaconda to work with packages repo
         curl -O https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh
         bash Anaconda3-2020.11-Linux-x86_64.sh -b -p $HOME/anaconda
@@ -439,15 +444,15 @@ jobs:
         #python common/delete_old_night_packages.py --username ${{ env.AIHABITAT_CONDA_CHN }}  --password $${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }} ${{ env.NIGHTLY_FLAG }} ${{ env.CI_TEST }}
         docker build -t hsim_condabuild_dcontainer -f Dockerfile .
         docker run -i --ipc=host --rm -v $(pwd)/../../:/remote \
-            ${{ env.CI_TEST }} --env ${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }} ${{ env.CI_TEST }} \
+            $CI_TEST_ARG1 \
             hsim_condabuild_dcontainer \
             /bin/bash -c "source ~/.bashrc && conda activate py39 \
                           && cd /remote/habitat-sim/ && git config --global --add safe.directory '*' \
                           && cd /remote/habitat-sim/conda-build \
-                          ${{ env.CI_TEST }} && yes | anaconda login --username ${{ env.AIHABITAT_CONDA_CHN }} --password \${${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }}} ${{ env.CI_TEST }} --hostname "aihabitat-conda-ci-builder-linux" \
+                          $CI_TEST_ARG2 \
                           && python matrix_builder.py \
-                            ${{ env.CI_TEST }} --ci_test ${{ env.CI_TEST }} \
-                            ${{ env.CI_TEST }} --conda_upload ${{ env.NIGHTLY_FLAG }} ${{ env.CI_TEST }}"
+                            $CI_TEST_ARG3 \
+                            $CI_TEST_ARG4"
   clang_tidy:
     runs-on: ubuntu-20.04
     steps:
