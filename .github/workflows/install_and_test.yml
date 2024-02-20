@@ -69,27 +69,21 @@ jobs:
     steps:
     - uses: actions/checkout@v4.1.1
       with:
-        path: "./habitat-sim"
+        path: ./habitat-sim
+        submodules: recursive
+        lfs: true
     - name: CPU info
       run: cat /proc/cpuinfo
     - uses: "./habitat-sim/.github/actions/install_all_ubuntu_deps"
     - name: Download test data
       run: |-
-        sudo apt install git-lfs
-        git --version
-        git-lfs --version
-        export PATH=$HOME/miniconda/bin:/usr/local/cuda/bin:$PATH
         . $CONDA/bin/activate habitat;
         conda install -y gitpython git-lfs
         cd habitat-sim
-        git lfs install
         python src_python/habitat_sim/utils/datasets_download.py --uids ci_test_assets --replace --data-path data/ --no-prune
         ls -la data/scene_datasets/habitat-test-scenes/
-    - name: Is cuda installed
-      run: if command -v nvidia-smi; then nvidia-smi; fi
     - name: Build habitat sim and documentation
       run: |-
-        export PATH=$HOME/miniconda/bin:/usr/local/cuda/bin:$PATH
         . $CONDA/bin/activate habitat
         cd habitat-sim
         git submodule update --init --recursive --jobs 8
@@ -97,7 +91,6 @@ jobs:
         pip install imageio imageio-ffmpeg
         conda install -y -c conda-forge doxygen=1.9.5
         conda install -y  jinja2 pygments docutils
-        while [ ! -f ~/cuda_installed ]; do sleep 2; done # wait for CUDA
         sudo apt install -y --allow-change-held-packages \
             texlive-base \
             texlive-latex-extra \
