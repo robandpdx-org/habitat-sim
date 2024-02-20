@@ -172,6 +172,7 @@ jobs:
       with:
         auto-activate-base: true
         activate-environment: ""
+        python-version: '3.9.16'
     - name: Conda OSX build
       run: |-
         conda install -y anaconda-client ccache cmake git ninja conda-build pip
@@ -294,7 +295,7 @@ jobs:
         conda list                  | tee -a $CONDA_ENV_DUMP
         echo "###########"          | tee -a $CONDA_ENV_DUMP
         echo "habitat-sim commit"   | tee -a $CONDA_ENV_DUMP
-        cat ./hablab_sha            | tee -a $CONDA_ENV_DUMP
+        # cat ./hablab_sha            | tee -a $CONDA_ENV_DUMP
     - uses: actions/upload-artifact@v4.0.0
       with:
         path: conda_env_dump.log
@@ -305,13 +306,13 @@ jobs:
         python examples/example.py --scene data/scene_datasets/habitat-test-scenes/van-gogh-room.glb --silent --test_fps_regression $FPS_THRESHOLD
     - name: Run sim tests
       run: |-
-        export PATH=$HOME/miniconda/bin:/usr/local/cuda/bin:$PATH
+        # export PATH=$HOME/miniconda/bin:/usr/local/cuda/bin:$PATH
         . $CONDA/bin/activate habitat; cd habitat-sim
         export PYTHONPATH=$(pwd):$PYTHONPATH
         #This way, pytest shows partial progress
         export PYTHONUNBUFFERED=1
         # CUDA isn't needed until here
-        while [ ! -f ~/cuda_installed ]; do sleep 2; done # wait for CUDA
+        # while [ ! -f ~/cuda_installed ]; do sleep 2; done # wait for CUDA
         # run tests with code coverage
         CORRADE_TEST_COLOR=ON GTEST_COLOR=yes ./build.sh --headless \
           --bullet \
@@ -415,7 +416,7 @@ jobs:
     - name: Check Code Style using pre-commit
       run: SKIP=eslint pre-commit run --show-diff-on-failure --all-files
   build_conda_binaries:
-    runs-on: ubuntu-latest
+    runs-on: 4-core-gpu
     env:
       FPS_THRESHOLD: 900
       AIHABITAT_CONDA_CHN: aihabitat
