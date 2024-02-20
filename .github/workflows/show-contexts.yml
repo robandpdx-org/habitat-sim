@@ -1,13 +1,7 @@
 # https://docs.github.com/en/actions/learn-github-actions/contexts#example-printing-context-information-to-the-log
 name: Context testing
 on:
-  push:
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - labeled
   issue_comment:
   workflow_dispatch:
   issues:
@@ -52,4 +46,5 @@ jobs:
           echo "Miniconda stuff"
           which conda
           . $CONDA/bin/activate
-          which nvcc
+          echo "what's in /usr/local/cuda/bin?"
+          ls /usr/local/cuda/bin
