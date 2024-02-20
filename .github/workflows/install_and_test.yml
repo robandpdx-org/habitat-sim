@@ -71,15 +71,16 @@ jobs:
       with:
         path: ./habitat-sim
         submodules: recursive
-        lfs: true
     - name: CPU info
       run: cat /proc/cpuinfo
     - uses: "./habitat-sim/.github/actions/install_all_ubuntu_deps"
     - name: Download test data
       run: |-
+        sudo apt install git-lfs
         . $CONDA/bin/activate habitat;
         conda install -y gitpython git-lfs
         cd habitat-sim
+        git lfs install
         python src_python/habitat_sim/utils/datasets_download.py --uids ci_test_assets --replace --data-path data/ --no-prune
         ls -la data/scene_datasets/habitat-test-scenes/
     - name: Build habitat sim and documentation
