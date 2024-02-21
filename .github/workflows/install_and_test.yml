@@ -189,13 +189,25 @@ jobs:
         # git submodule update --init --recursive --jobs 8
         pip install .
         pip uninstall -y habitat-sim
-        # rm -rf build
-        # (yes || true) | anaconda login --username ${{ env.AIHABITAT_CONDA_CHN }}  --password $${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }} --hostname "aihabitat-conda-ci-builder-macos"
-        # ${{ env.CI_TEST }}
-        # conda config --set anaconda_upload yes ${{ env.CI_TEST }}
-        # cd conda-build
-        # export PYTHONIOENCODING="utf-8"
-        # python matrix_builder.py ${{ env.CI_TEST }} --ci_test ${{ env.CI_TEST }}  ${{ env.CI_TEST }} --conda_upload ${{ env.nightly }} --nightly ${{ env.nightly }} ${{ env.CI_TEST }}
+        rm -rf build
+        (yes || true) | anaconda login --username $AIHABITAT_CONDA_CHN  --password $${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }} --hostname "aihabitat-conda-ci-builder-macos"
+        if [ $CI_TEST != "true" ]
+        then
+          conda config --set anaconda_upload yes
+        fi
+        cd conda-build
+        export PYTHONIOENCODING="utf-8"
+        if [ $CI_TEST == "true" ]
+        then
+          CI_TEST_ARG="--ci_test"
+        else
+          UPLOAD_ARG="--conda_upload"
+          if [ $nightly == "true" ]
+          then
+            NIGHTLY_ARG="--nightly"
+          fi
+        fi
+        python matrix_builder.py $CI_TEST_ARG $UPLOAD_ARG $NIGHTLY_ARG
   test_pip_build:
     runs-on: ubuntu-latest
     env:
