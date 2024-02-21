@@ -180,7 +180,7 @@ jobs:
         conda install -y anaconda-client ccache cmake git ninja conda-build pip
         echo $(which -a python)
         echo "Python version: $(python --version)"
-        pip install gitpython
+        pip install gitpython setuptools
         cd habitat-sim
         # git submodule update --init --recursive --jobs 8
         pip install .
@@ -401,7 +401,7 @@ jobs:
         echo $(date +%F) > ./date
         cat .pre-commit-config.yaml > pre-commit-deps.txt
         python -VV >> pre-commit-deps.txt
-    - name: restore_cache
+    - name: Cache
       uses: actions/cache@v3.3.2
       with:
         key: v1-precommit-deps-S{{ hashFiles('pre-commit-deps.txt', './date') }}
@@ -427,8 +427,6 @@ jobs:
         path: "./habitat-sim"
     - name: Build conda Linux packages
       run: |-
-        # export PATH=$HOME/miniconda/bin:$PATH
-        # . $CONDA/bin/activate habitat;
         cd habitat-sim/conda-build
         if [ $CI_TEST == "true" ]; then
           CI_TEST_ARG1=" --ci_test "
@@ -441,7 +439,7 @@ jobs:
         curl -O https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh
         bash Anaconda3-2020.11-Linux-x86_64.sh -b -p $HOME/anaconda
         export PATH=$HOME/anaconda/bin:$PATH
-        # Delete old nightly builds
+        # Delete old nightly builds TODO: Fix common/delete_old_night_packages.py usage below
         #python common/delete_old_night_packages.py --username ${{ env.AIHABITAT_CONDA_CHN }}  --password $${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }} ${{ env.NIGHTLY_FLAG }} ${{ env.CI_TEST }}
         docker build -t hsim_condabuild_dcontainer -f Dockerfile .
         docker run -i --ipc=host --rm -v $(pwd)/../../:/remote \
