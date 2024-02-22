@@ -190,6 +190,7 @@ jobs:
     - name: Conda OSX build
       run: |-
         export PATH=$HOME/miniconda/bin:$PATH
+        conda init
         conda activate
         conda install -y anaconda-client ccache cmake git ninja conda-build pip
         echo $(which -a python)
