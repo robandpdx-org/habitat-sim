@@ -173,14 +173,24 @@ jobs:
       uses: actions/setup-python@v5.0.0
       with:
         python-version: '3.9.16'
-    - name: Setup Miniconda
-      uses: conda-incubator/setup-miniconda@v3.0.1
-      with:
-        auto-activate-base: true
-        activate-environment: true
-        python-version: '3.9.16'
+    # - name: Setup Miniconda
+    #   uses: conda-incubator/setup-miniconda@v3.0.2
+    #   with:
+    #     auto-activate-base: true
+    #     activate-environment: true
+    #     python-version: '3.9.16'
+    - name: Conda Install OSX
+      run: |
+        curl -o ~/miniconda.sh -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+        chmod +x ~/miniconda.sh
+        ~/miniconda.sh -b -p $HOME/miniconda
+        rm ~/miniconda.sh
+        export PATH=$HOME/miniconda/bin:$PATH
+        conda init "$(basename "${SHELL}")"
     - name: Conda OSX build
       run: |-
+        export PATH=$HOME/miniconda/bin:$PATH
+        conda activate
         conda install -y anaconda-client ccache cmake git ninja conda-build pip
         echo $(which -a python)
         echo "Python version: $(python --version)"
