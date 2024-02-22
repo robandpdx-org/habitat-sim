@@ -116,8 +116,7 @@ jobs:
         #Rebuild headless
         python setup.py install --headless --with-bullet --with-cuda
         cd ..
-        if [ ! -d ./habitat-lab ]
-        then
+        if [ ! -d ./habitat-lab ]; then
           git clone -q --depth 1 https://github.com/facebookresearch/habitat-lab.git
         fi
         cd habitat-lab
@@ -162,6 +161,11 @@ jobs:
       AIHABITAT_CONDA_CHN: aihabitat
       AIHABITAT_CONDA_CHN_PWD_VAR: AIHABITAT_CONDA_PWD
     steps:
+    - name: Override env vars for nightly builds
+      if: github.event_name == 'schedule'
+      run: |
+        echo "nightly=true" >> $GITHUB_ENV
+        echo "CI_TEST=false" >> $GITHUB_ENV
     - uses: actions/checkout@v4.1.1
       with:
         path: ./habitat-sim
@@ -173,12 +177,6 @@ jobs:
       uses: actions/setup-python@v5.0.0
       with:
         python-version: '3.9.16'
-    # - name: Setup Miniconda
-    #   uses: conda-incubator/setup-miniconda@v3.0.2
-    #   with:
-    #     auto-activate-base: true
-    #     activate-environment: true
-    #     python-version: '3.9.16'
     - name: Conda Install OSX
       run: |
         curl -o ~/miniconda.sh -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
@@ -202,20 +200,17 @@ jobs:
         pip install .
         pip uninstall -y habitat-sim
         rm -rf build
-        (yes || true) | anaconda login --username $AIHABITAT_CONDA_CHN  --password $${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }} --hostname "aihabitat-conda-ci-builder-macos"
-        if [ $CI_TEST != "true" ]
-        then
+        if [ $CI_TEST != "true" ]; then
+          (yes || true) | anaconda login --username $AIHABITAT_CONDA_CHN  --password $${{ env.AIHABITAT_CONDA_CHN_PWD_VAR }} --hostname "aihabitat-conda-ci-builder-macos"
           conda config --set anaconda_upload yes
         fi
         cd conda-build
         export PYTHONIOENCODING="utf-8"
-        if [ $CI_TEST == "true" ]
-        then
+        if [ $CI_TEST == "true" ]; then
           CI_TEST_ARG="--ci_test"
         else
           UPLOAD_ARG="--conda_upload"
-          if [ $nightly == "true" ]
-          then
+          if [ $nightly == "true" ]; then
             NIGHTLY_ARG="--nightly"
           fi
         fi
@@ -450,6 +445,11 @@ jobs:
       NIGHTLY_FLAG: ''
       CI_TEST: true
     steps:
+    - name: Override env vars for nightly builds
+      if: github.event_name == 'schedule'
+      run: |
+        echo "NIGHTLY_FLAG=--nightly" >> $GITHUB_ENV
+        echo "CI_TEST=false" >> $GITHUB_ENV
     - uses: actions/checkout@v4.1.1
       with:
         path: "./habitat-sim"
