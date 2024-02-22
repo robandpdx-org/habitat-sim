@@ -3,6 +3,8 @@ on:
   push:
     branches:
     - main
+    tags:
+    - v*
   schedule:
     - cron: '0 7 * * *'
 env:
@@ -165,6 +167,10 @@ jobs:
       if: github.event_name == 'schedule'
       run: |
         echo "nightly=true" >> $GITHUB_ENV
+        echo "CI_TEST=false" >> $GITHUB_ENV
+    - name: Override env vars for version conda release
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
         echo "CI_TEST=false" >> $GITHUB_ENV
     - uses: actions/checkout@v4.1.1
       with:
@@ -450,6 +456,10 @@ jobs:
       run: |
         echo "NIGHTLY_FLAG=--nightly" >> $GITHUB_ENV
         echo "CI_TEST=false" >> $GITHUB_ENV
+    - name: Override env vars for version conda release
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        echo "CI_TEST=false" >> $GITHUB_ENV
     - uses: actions/checkout@v4.1.1
       with:
         path: "./habitat-sim"
@@ -556,3 +566,40 @@ jobs:
         . $CONDA/bin/activate habitat;
         cd habitat-sim
         python tools/run-clang-tidy.py -header-filter=src/esp src/esp
+  update_docs:
+    if: github.event_name == 'schedule'
+    needs: [install_and_test_ubuntu, lab_build_habitat]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.1.1
+    - name: Update public documentation
+      run: |
+          # Update website
+          git clone git@github.com:facebookmicrosites/habitat-website.git
+          cd habitat-website
+          git submodule update --init
+
+          for dir in habitat-sim habitat-lab
+          do
+              rm -rf published/docs/${dir}
+              cp -r ../habitat-sim/build/docs-public/${dir} published/docs/.
+          done
+
+          git config --global user.name "Habitat"
+          git config --global user.email habitat@fb.com
+          NOW=$(date +"%m-%d-%Y")
+          git add .
+          git diff-index --quiet HEAD || git commit -m "Build habitat-sim and habitat-lab ${NOW}"
+          git push origin main
+
+          # Deploy to public
+          git checkout gh-pages
+          git checkout main published
+          sudo apt-get update || true
+          sudo apt-get install -yq \
+                rsync
+          rsync -a published/ ./.
+          rm -rf published
+          git add .
+          git diff-index --quiet HEAD || git commit -m "Build habitat-sim and habitat-lab ${NOW}"
+          git push origin gh-pages
